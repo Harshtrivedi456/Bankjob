@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Balance Search</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        input {
+            padding: 10px;
+            width: 250px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h2>Search Bank Balance by Initial</h2>
+    <input type="text" id="searchInput" placeholder="Enter Initial (e.g., C)">
+    <button onclick="searchBalance()">Search</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Initial</th>
+                <th>Bank</th>
+                <th>DA per Bank</th>
+                <th>MA per Bank</th>
+                <th>Total DA</th>
+                <th>Total MA</th>
+            </tr>
+        </thead>
+        <tbody id="resultTable">
+        </tbody>
+    </table>
+
+    <script>
+        let balanceData = [];
+        
+        // Load CSV data from the Excel reference file
+        fetch('bank_bifurcation.csv') // Convert Excel to CSV manually
+            .then(response => response.text())
+            .then(csvData => {
+                Papa.parse(csvData, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        balanceData = results.data;
+                    }
+                });
+            });
+        
+        function searchBalance() {
+            let input = document.getElementById('searchInput').value.toUpperCase();
+            let tableBody = document.getElementById('resultTable');
+            tableBody.innerHTML = '';
+            
+            let filteredData = balanceData.filter(row => row.Initial === input);
+            
+            filteredData.forEach(row => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.Initial}</td><td>${row.Bank}</td><td>${row.DA_per_bank}</td><td>${row.MA_per_bank}</td><td>${row.DA_total}</td><td>${row.MA_total}</td>`;
+                tableBody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
