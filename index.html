@@ -56,14 +56,14 @@
     </style>
 </head>
 <body>
-    <h2>Search Bank Balance by Initial</h2>
-    <input type="text" id="searchInput" placeholder="Enter Initial (e.g., C)">
+    <h2>Search Bank Balance by Name or Bank</h2>
+    <input type="text" id="searchInput" placeholder="Enter Name or Bank">
     <button onclick="searchBalance()">Search</button>
     
     <table>
         <thead>
             <tr>
-                <th>Initial</th>
+                <th>Name</th>
                 <th>Bank</th>
                 <th>DA per Bank</th>
                 <th>MA per Bank</th>
@@ -77,7 +77,7 @@
 
     <script>
         let balanceData = [];
-        
+
         // Load CSV data from the Excel reference file
         fetch('bank_bifurcation.csv') // Convert Excel to CSV manually
             .then(response => response.text())
@@ -87,20 +87,45 @@
                     skipEmptyLines: true,
                     complete: function(results) {
                         balanceData = results.data;
+                        console.log("CSV Data Loaded:", balanceData);
                     }
                 });
-            });
-        
+            })
+            .catch(error => console.error("Error loading CSV file:", error));
+
         function searchBalance() {
-            let input = document.getElementById('searchInput').value.toUpperCase();
-            let tableBody = document.getElementById('resultTable');
+            console.log("Search function triggered");
+            const input = document.getElementById('searchInput').value.toUpperCase().trim();
+            const tableBody = document.getElementById('resultTable');
             tableBody.innerHTML = '';
             
-            let filteredData = balanceData.filter(row => row.Initial === input);
+            if (balanceData.length === 0) {
+                console.error("Data not loaded yet or empty.");
+                alert("Data not loaded yet. Please wait or check the file.");
+                return;
+            }
+
+            console.log("Searching for:", input);
             
+            const filteredData = balanceData.filter(row =>
+                row.Name?.toUpperCase() === input || row.Bank?.toUpperCase() === input
+            );
+
+            console.log("Filtered Data:", filteredData);
+
+            if (filteredData.length === 0) {
+                alert("No matching records found.");
+                return;
+            }
+
             filteredData.forEach(row => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `<td>${row.Initial}</td><td>${row.Bank}</td><td>${row.DA_per_bank}</td><td>${row.MA_per_bank}</td><td>${row.DA_total}</td><td>${row.MA_total}</td>`;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.Name || 'N/A'}</td>
+                                <td>${row.Bank || 'N/A'}</td>
+                                <td>${row.DA_per_bank || 'N/A'}</td>
+                                <td>${row.MA_per_bank || 'N/A'}</td>
+                                <td>${row.DA_total || 'N/A'}</td>
+                                <td>${row.MA_total || 'N/A'}</td>`;
                 tableBody.appendChild(tr);
             });
         }
