@@ -1,134 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Balance Search</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        h2 {
-            color: #333;
-        }
-        input {
-            padding: 10px;
-            width: 250px;
-            margin: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 80%;
-            background-color: white;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bank Bifurcation Search</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+    input {
+      padding: 10px;
+      width: 300px;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 95%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .summary {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-    <h2>Search Bank Balance by Name or Bank</h2>
-    <input type="text" id="searchInput" placeholder="Enter Name or Bank">
-    <button onclick="searchBalance()">Search</button>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Bank</th>
-                <th>DA per Bank</th>
-                <th>MA per Bank</th>
-                <th>Total DA</th>
-                <th>Total MA</th>
-            </tr>
-        </thead>
-        <tbody id="resultTable">
-        </tbody>
-    </table>
+  <h2>Search Bank Bifurcation by Initial or Bank</h2>
+  <input type="text" id="searchInput" placeholder="Enter Initial (e.g., C) or Bank Name (e.g., RAJ)">
+  <button onclick="search()">Search</button>
 
-    <script>
-        let balanceData = [];
+  <div class="summary" id="summary"></div>
 
-        // Load CSV data from the Excel reference file
-        fetch('bank_bifurcation.csv') // Convert Excel to CSV manually
-            .then(response => response.text())
-            .then(csvData => {
-                Papa.parse(csvData, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        balanceData = results.data;
-                        console.log("CSV Data Loaded:", balanceData);
-                    }
-                });
-            })
-            .catch(error => console.error("Error loading CSV file:", error));
+  <table>
+    <thead>
+      <tr>
+        <th>Initial</th>
+        <th>Bank</th>
+        <th>DA per Bank</th>
+        <th>MA per Bank</th>
+        <th>DA Total</th>
+        <th>MA Total</th>
+      </tr>
+    </thead>
+    <tbody id="resultTable"></tbody>
+  </table>
 
-        function searchBalance() {
-            console.log("Search function triggered");
-            const input = document.getElementById('searchInput').value.toUpperCase().trim();
-            const tableBody = document.getElementById('resultTable');
-            tableBody.innerHTML = '';
-            
-            if (balanceData.length === 0) {
-                console.error("Data not loaded yet or empty.");
-                alert("Data not loaded yet. Please wait or check the file.");
-                return;
-            }
+  <script>
+    let bankData = [];
 
-            console.log("Searching for:", input);
-            
-            const filteredData = balanceData.filter(row =>
-                row.Name?.toUpperCase() === input || row.Bank?.toUpperCase() === input
-            );
+    // Load the CSV file (make sure it's in same directory or path is correct)
+    fetch('bank_bifurcation.csv')
+      .then(response => response.text())
+      .then(csv => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            bankData = results.data;
+          }
+        });
+      });
 
-            console.log("Filtered Data:", filteredData);
+    function search() {
+      const input = document.getElementById("searchInput").value.trim().toUpperCase();
+      const table = document.getElementById("resultTable");
+      const summary = document.getElementById("summary");
+      table.innerHTML = '';
+      summary.innerHTML = '';
 
-            if (filteredData.length === 0) {
-                alert("No matching records found.");
-                return;
-            }
+      if (!input) return;
 
-            filteredData.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${row.Name || 'N/A'}</td>
-                                <td>${row.Bank || 'N/A'}</td>
-                                <td>${row.DA_per_bank || 'N/A'}</td>
-                                <td>${row.MA_per_bank || 'N/A'}</td>
-                                <td>${row.DA_total || 'N/A'}</td>
-                                <td>${row.MA_total || 'N/A'}</td>`;
-                tableBody.appendChild(tr);
-            });
-        }
-    </script>
+      let filtered = bankData.filter(row => {
+        const initial = row.Initial?.toUpperCase() || '';
+        const bank = row.Bank?.toUpperCase() || '';
+        return initial === input || bank === input;
+      });
+
+      let totalDA = 0;
+      let totalMA = 0;
+
+      filtered.forEach(row => {
+        const da = parseFloat(row.DA_per_bank) || 0;
+        const ma = parseFloat(row.MA_per_bank) || 0;
+
+        totalDA += da;
+        totalMA += ma;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.Initial}</td>
+          <td>${row.Bank}</td>
+          <td>${da.toLocaleString()}</td>
+          <td>${ma.toLocaleString()}</td>
+          <td>${row.DA_total}</td>
+          <td>${row.MA_total}</td>
+        `;
+        table.appendChild(tr);
+      });
+
+      if (filtered.length > 0) {
+        summary.innerHTML = `Total Deposit (DA): ₹${totalDA.toLocaleString()} | Total Maturity (MA): ₹${totalMA.toLocaleString()}`;
+      } else {
+        summary.innerHTML = "No matching results found.";
+      }
+    }
+  </script>
 </body>
 </html>
